@@ -1,5 +1,13 @@
 ---
-apiVersion: awx.ansible.com/v1beta1
+apiVersion: awx.ansible.com/v1
 kind: AWX
 metadata:
   name: awx
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <resourcename>-admin-password
+  namespace: <target namespace>
+stringData:
+  password: mysuperlongpassword

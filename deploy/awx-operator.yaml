@@ -2,7 +2,7 @@
 # Update templates under ansible/templates/
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: Role
 metadata:
   creationTimestamp: null
   name: awx-operator
@@ -78,14 +78,14 @@ rules:
       - '*'
 
 ---
-kind: ClusterRoleBinding
+kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: awx-operator
 subjects:
   - kind: ServiceAccount
     name: awx-operator
-    namespace: default
+    namespace: test
 roleRef:
   kind: ClusterRole
   name: awx-operator
@@ -96,7 +96,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: awx-operator
-  namespace: default
+  namespace: test
 
 ---
 apiVersion: apps/v1
@@ -124,7 +124,7 @@ spec:
           env:
             # Watch all namespaces (cluster-scoped).
             - name: WATCH_NAMESPACE
-              value: ""
+              value: "test"
             - name: POD_NAME
               valueFrom:
                 fieldRef:

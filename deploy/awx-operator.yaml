@@ -78,7 +78,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: awx-operator
-    namespace: myproject
+    namespace: "My Project"
 roleRef:
   kind: Role
   name: awx-operator
@@ -89,7 +89,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: awx-operator
-  namespace: myproject
+  namespace: "My Project"
 
 ---
 apiVersion: apps/v1

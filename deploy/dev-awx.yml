@@ -4,10 +4,18 @@ kind: AWX
 metadata:
   name: awx
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: <resourcename>-admin-password
-  namespace: <target namespace>
-stringData:
-  password: mysuperlongpassword
+spec:
+  tower_web_resource_requirements:
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+  tower_task_resource_requirements:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi

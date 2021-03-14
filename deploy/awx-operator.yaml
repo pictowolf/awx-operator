@@ -80,7 +80,7 @@ subjects:
     name: awx-operator
     namespace: default
 roleRef:
-  kind: ClusterRole
+  kind: Role
   name: awx-operator
   apiGroup: rbac.authorization.k8s.io
 

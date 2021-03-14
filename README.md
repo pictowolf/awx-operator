@@ -39,6 +39,13 @@ Note that the operator is not supported by Red Hat, and is in **alpha** status. 
 
 ## Usage
 
+### MiniShift install
+```bash
+kubectl apply -f https://raw.githubusercontent.com/pictowolf/awx-operator/devel/deploy/awx-operator.yaml
+oc adm policy add-scc-to-user privileged -z awx-operator
+oc adm policy add-scc-to-user anyuid -z awx-operator
+oc apply -f https://raw.githubusercontent.com/pictowolf/awx-operator/devel/deploy/dev-awx.yml
+```
 ### Basic Install
 
 This Kubernetes Operator is meant to be deployed in your Kubernetes cluster(s) and can manage one or more AWX instances in any namespace.

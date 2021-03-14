@@ -4,3 +4,12 @@ kind: AWX
 metadata: 
   name: awx
   namespace: dev
+  
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: awx-admin-password
+  namespace: dev
+stringData:
+  password: test

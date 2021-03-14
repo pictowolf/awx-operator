@@ -7,13 +7,13 @@ metadata:
   creationTimestamp: null
   name: awx-operator
 rules:
-  - apiGroups:
-      - route.openshift.io
-    resources:
-      - routes
-      - routes/custom-host
-    verbs:
-      - '*'
+  #- apiGroups:
+      #- route.openshift.io
+    #resources:
+      #- routes
+      #- routes/custom-host
+    #verbs:
+      #- '*'
   - apiGroups:
       - ""
       - "rbac.authorization.k8s.io"

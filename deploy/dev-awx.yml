@@ -16,4 +16,3 @@ spec:
   tower_task_image: ansible/awx:15.0.1 # replace this with desired image
   tower_web_image: ansible/awx:15.0.1 # replace this with desired image
   tower_postgres_image: postgres:10 # replace this with the desired image
-  tower_postgres_storage_class: thin

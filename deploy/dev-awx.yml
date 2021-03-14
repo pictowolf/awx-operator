@@ -1,5 +1,20 @@
 --- 
-apiVersion: awx.ansible.com/v1
+apiVersion: awx.ansible.com/v1beta1
 kind: AWX
 metadata: 
   name: awx
+spec: 
+  tower_task_resource_requirements: 
+    limits: 
+      cpu: 500m
+      memory: 1Gi
+    requests: 
+      cpu: 300m
+      memory: 1Gi
+  tower_web_resource_requirements: 
+    limits: 
+      cpu: 500m
+      memory: 1Gi
+    requests: 
+      cpu: 100m
+      memory: 1Gi

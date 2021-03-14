@@ -1,246 +1,166 @@
---- 
-- 
-  community.kubernetes.k8s: 
-    api_version: v1
-    context: minishift
-    kind: Namespace
-    name: myproject
-    state: present
-  name: "Create the Namespace"
-- 
-  community.kubernetes.k8s: 
-    context: minishift
-    definition: 
-      kind: ClusterRole
-      metadata: 
-        creationTimestamp: ~
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: awx-operator
+rules:
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes
+    verbs:
+      - '*'
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - services
+      - services/finalizers
+      - endpoints
+      - persistentvolumeclaims
+      - events
+      - configmaps
+      - secrets
+    verbs:
+      - '*'
+  - apiGroups:
+      - apps
+      - extensions
+    resources:
+      - deployments
+      - daemonsets
+      - replicasets
+      - statefulsets
+      - ingresses
+    verbs:
+      - '*'
+  - apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - servicemonitors
+    verbs:
+      - get
+      - create
+  - apiGroups:
+      - apps
+    resourceNames:
+      - awx-operator
+    resources:
+      - deployments/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+    verbs:
+      - create
+      - get
+  - apiGroups:
+      - apps
+    resources:
+      - replicasets
+    verbs:
+      - get
+  - apiGroups:
+      - awx.ansible.com
+    resources:
+      - '*'
+    verbs:
+      - '*'
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: awx-operator
+subjects:
+  - kind: ServiceAccount
+    name: awx-operator
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: awx-operator
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: awx-operator
+  namespace: default
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: awx-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: awx-operator
+  template:
+    metadata:
+      labels:
         name: awx-operator
-        namespace: myproject
-      rules: 
-        - 
-          apiGroups: 
-            - route.openshift.io
-          resources: 
-            - routes
-          verbs: 
-            - "*"
-        - 
-          apiGroups: 
-            - ""
-          resources: 
-            - pods
-            - services
-            - services/finalizers
-            - endpoints
-            - persistentvolumeclaims
-            - events
-            - configmaps
-            - secrets
-          verbs: 
-            - "*"
-        - 
-          apiGroups: 
-            - apps
-            - extensions
-          resources: 
-            - deployments
-            - daemonsets
-            - replicasets
-            - statefulsets
-            - ingresses
-          verbs: 
-            - "*"
-        - 
-          apiGroups: 
-            - monitoring.coreos.com
-          resources: 
-            - servicemonitors
-          verbs: 
-            - get
-            - create
-        - 
-          apiGroups: 
-            - apps
-          resourceNames: 
-            - awx-operator
-          resources: 
-            - deployments/finalizers
-          verbs: 
-            - update
-        - 
-          apiGroups: 
-            - ""
-          resources: 
-            - pods/exec
-          verbs: 
-            - create
-            - get
-        - 
-          apiGroups: 
-            - apps
-          resources: 
-            - replicasets
-          verbs: 
-            - get
-        - 
-          apiGroups: 
-            - awx.ansible.com
-          resources: 
-            - "*"
-          verbs: 
-            - "*"
-    state: present
-  name: "Create the ClusterRole"
-- 
-  community.kubernetes.k8s: 
-    context: minishift
-    definition: 
-      apiVersion: rbac.authorization.k8s.io/v1
-      kind: ClusterRoleBinding
-      metadata: 
-        name: awx-operator
-        namespace: myproject
-      roleRef: 
-        apiGroup: rbac.authorization.k8s.io
-        kind: ClusterRole
-        name: awx-operator
-      subjects: 
-        - 
-          kind: ServiceAccount
-          name: awx-operator
-          namespace: myproject
-    state: present
-  name: "Create the ClusterRoleBinding"
-- 
-  community.kubernetes.k8s: 
-    context: minishift
-    definition: 
-      apiVersion: v1
-      kind: ServiceAccount
-      metadata: 
-        name: awx-operator
-        namespace: myproject
-    state: present
-  name: "Create the ServiceAccount"
-- 
-  community.kubernetes.k8s: 
-    context: minishift
-    definition: 
-      apiVersion: apps/v1
-      kind: Deployment
-      metadata: 
-        name: awx-operator
-        namespace: myproject
-      spec: 
-        replicas: 1
-        selector: 
-          matchLabels: 
-            name: awx-operator
-        template: 
-          metadata: 
-            labels: 
-              name: awx-operator
-          spec: 
-            containers: 
-              - 
-                command: 
-                  - /usr/local/bin/ao-logs
-                  - /tmp/ansible-operator/runner
-                  - stdout
-                image: "ansible/awx-operator:0.5.0"
-                imagePullPolicy: Always
-                name: ansible
-                volumeMounts: 
-                  - 
-                    mountPath: /tmp/ansible-operator/runner
-                    name: runner
-                    readOnly: true
-              - 
-                env: 
-                  - 
-                    name: WATCH_NAMESPACE
-                    value: ""
-                  - 
-                    name: POD_NAME
-                    valueFrom: 
-                      fieldRef: 
-                        fieldPath: metadata.name
-                  - 
-                    name: OPERATOR_NAME
-                    value: awx-operator
-                image: "ansible/awx-operator:0.5.0"
-                imagePullPolicy: Always
-                name: operator
-                volumeMounts: 
-                  - 
-                    mountPath: /tmp/ansible-operator/runner
-                    name: runner
-            serviceAccountName: awx-operator
-            volumes: 
-              - 
-                emptyDir: {}
-                name: runner
-    state: present
-  name: "Create the Deployment"
-- 
-  community.kubernetes.k8s: 
-    context: minishift
-    definition: 
-      apiVersion: apiextensions.k8s.io/v1beta1
-      kind: CustomResourceDefinition
-      metadata: 
-        name: awxs.awx.ansible.com
-        namespace: myproject
-      spec: 
-        group: awx.ansible.com
-        names: 
-          kind: AWX
-          listKind: AWXList
-          plural: awxs
-          singular: awx
-        scope: Namespaced
-        subresources: 
-          status: {}
-        validation: 
-          openAPIV3Schema: 
-            description: "Schema validation for the AWX CRD"
-            properties: 
-              spec: 
-                properties: 
-                  deployment_type: 
-                    pattern: ^(tower|awx)(-)?.*$
-                    type: string
-                  external_database: 
-                    description: |
-                        If true you must supply a secret containing the location and credentials for
-                        connecting to the external database by a user who has permission to create
-                        and apply a schema.
-                        
-                        The secret should have the name: <custom resource name>-postgres-configuration and
-                        should look like:
-                        
-                        apiVersion: v1
-                        kind: Secret
-                        metadata:
-                          name: <crname>-postgres-configuration
-                          namespace: <target namespace>
-                        stringData:
-                          host: <external ip or url resolvable by the cluster>
-                          port: <external port, this usually defaults to 5432>
-                          database: <desired database name>
-                          username: <username to connect as>
-                          password: <password to connect with>
-                        type: Opaque
-                    type: boolean
-                required: 
-                  - deployment_type
-                type: object
-            type: object
-        version: v1beta1
-        versions: 
-          - 
-            name: v1beta1
-            served: true
-            storage: true
-    state: present
-  name: "Create the CustomResourceDefinition"
+    spec:
+      serviceAccountName: awx-operator
+      containers:
+        - name: awx-operator
+          image: "quay.io/ansible/awx-operator:0.6.0"
+          imagePullPolicy: "Always"
+          volumeMounts:
+            - mountPath: /tmp/ansible-operator/runner
+              name: runner
+          env:
+            # Watch all namespaces (cluster-scoped).
+            - name: WATCH_NAMESPACE
+              value: ""
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: awx-operator
+            - name: ANSIBLE_GATHERING
+              value: explicit
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 6789
+            initialDelaySeconds: 5
+            periodSeconds: 3
+      volumes:
+        - name: runner
+          emptyDir: {}
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: awxs.awx.ansible.com
+spec:
+  group: awx.ansible.com
+  names:
+    kind: AWX
+    listKind: AWXList
+    plural: awxs
+    singular: awx
+  scope: Namespaced
+  subresources:
+    status: {}
+  version: v1beta1
+  versions:
+    - name: v1beta1
+      served: true
+      storage: true
+  validation:
+    openAPIV3Schema:
+      description: Schema validation for the AWX CRD
+      type: object
+      properties:
+        spec:
+          type: object
+          properties:

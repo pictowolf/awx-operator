@@ -119,7 +119,7 @@ spec:
           env:
             # Watch all namespaces (cluster-scoped).
             - name: WATCH_NAMESPACE
-              value: ""
+              value: "dev"
             - name: POD_NAME
               valueFrom:
                 fieldRef:

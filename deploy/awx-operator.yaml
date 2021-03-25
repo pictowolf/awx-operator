@@ -24,7 +24,7 @@ rules:
       - configmaps
       - secrets
     verbs:
-      - 'get'
+      - '*'
   - apiGroups:
       - apps
       - extensions
@@ -35,7 +35,7 @@ rules:
       - statefulsets
       - ingresses
     verbs:
-      - 'get'
+      - '*'
   - apiGroups:
       - monitoring.coreos.com
     resources:
